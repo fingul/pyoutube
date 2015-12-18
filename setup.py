@@ -4,13 +4,13 @@ with open('README.rst') as f:
     long_description = f.read()
 
 setup(name='pyoutube',
-      version='0.2.4',
+      version='0.2.5',
       description='Upload videos to youtube using OAuth2.0 and the youtube API',
       long_description=long_description,
       classifieres=['Development Status :: 3 - Alpha',
                     'License :: OSI Approved :: MIT License',
                     'Programming Language :: Python :: 3.4'],
-      liscense='MIT',
+      license='MIT',
       keywords='youtube upload uploader', 
 	  url='https://github.com/lpbrown999/pyoutube',
       author='lpbrown999',
