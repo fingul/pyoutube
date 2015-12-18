@@ -2,13 +2,13 @@ pyoutube
 --------
 Requirements:
 
-"*"Python 3.3 or higher
+*Python 3.3 or higher
 
-"*"Install the Google API's Client Library for python (https://developers.google.com/api-client-library/python/start/installation)
+*Install the Google API's Client Library for python (https://developers.google.com/api-client-library/python/start/installation)
 
-"*"A registered application with google (https://developers.google.com/youtube/registering_an_application)
+*A registered application with google (https://developers.google.com/youtube/registering_an_application)
 
-"*"A populated client_secret.json file in the directory you will be uploading the file from.
+*A populated client_secret.json file in the directory you will be uploading the file from.
 
 
 Sample usage::
