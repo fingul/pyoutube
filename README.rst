@@ -10,6 +10,8 @@ Requirements:
 
 * A populated client_secret.json file in the directory you will be uploading the file from.
 
+To install:
+>>> pip install pyoutube
 
 Sample usage::
 
