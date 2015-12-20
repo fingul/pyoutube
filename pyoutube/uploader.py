@@ -59,7 +59,7 @@ def get_authenticated_service():
 
     return(build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, http=credentials.authorize(httplib2.Http())))
 
-def initialize_upload(youtube, file, video_title, video_description, tags_list, categoryId):  #authenticated youtube service, file name as string, video title as string, video description as string, tags as list, category numeric id as string
+def initialize_upload(youtube, file, video_title, video_description, tags_list, categoryId, privacy_status):  #authenticated youtube service, file name as string, video title as string, video description as string, tags as list, category numeric id as string
     body=dict(
         snippet=dict(
             title=video_title,
@@ -68,7 +68,7 @@ def initialize_upload(youtube, file, video_title, video_description, tags_list, 
             categoryId=categoryId
         ),
         status=dict(
-            privacyStatus="public"
+            privacyStatus=privacy_status
         )
     )
     
@@ -111,41 +111,64 @@ def resumable_upload(insert_request):
             time.sleep(sleep_seconds)
 
 
-def upload(file, video_title, video_description, tags_list, categoryId):
+def upload(file, **kwargs):
+    """Define default arguments in case arguments are not passed to the function."""
+    video_title = "Default Title"
+    video_description = "Default Description"
+    tags_list = []
+    categoryId = "20"
+    privacy_status = 'public'
+    
+    """Check if the arguments are passed to the function, and if they are then assign them."""
+    
+    if 'title' in kwargs:
+         video_title = kwargs['title']
+    if 'description' in kwargs:
+        video_description = kwargs['description']
+    if 'tags' in kwargs:
+        tags_list = kwargs['tags']
+    if 'categoryId' in kwargs:
+        categoryId = str(kwargs['categoryId'])
+    if 'privacy_status' in kwargs:
+        if kwargs['privacy_status'] in VALID_PRIVACY_STATUSES:
+            privacy_status = kwargs['privacy_status']
     youtube = get_authenticated_service()
+    
     try:  
-        a = initialize_upload(youtube, file, video_title, video_description, tags_list, categoryId)
-        print(a['id'])
-        return(a['id'])
+        response = initialize_upload(youtube, file, video_title, video_description, tags_list, categoryId, privacy_status)
+        print(response['id'])
+        return(response)
     except HttpError as e:
         print("An HTTP error occured {}".format(e))
         
-class setup_help(object):
-    def __init__(self):
-        print("helping!")
-        print("For more help, try setup_help.google_project() setup_help.oauth(), setup_help.upload(), setup_help.categoryId()")
-    def google_project(self):
-        print("In order to use this module you must register a project with google as it uses their API.")
-        print("To do so, travel to https://console.developers.google.com")
-        print("From there, click on enable and manage API's and create a project. Then navigate to the API page.")
-        print("At the API page, enable all of the YoutTube API's. Then navigate to the credentials page.")
-        print("Create new OAuth client ID credentials. To do this you must follow a link to configure a consent screen, which is up to your discretion on what needs to be there.")        
-        print("Ensure the application type selected for your project is 'other'")
-        print("Then download the json file containing these credentials to the directory in which you will be running this module. Name this file client_secret.json")
-        print("To determine category Ids, which are region specific, you must create an API browser key. More details on this can be found in setup_help.categoryId()")
-    def oauth(self):
-        print("You will need to place your client_secret.json in the same directory that you are attempting to upload from")
-        print("This can be downloaded from your project in the google developer console")
-        print("More information can be found in setup_help.google_project()")
-    def upload(self):
-        print("The upload function is the main reason for this package.")
-        print("To use it, you must have a registered google developers project and a populated client_secret.json in the same folder as this file.")
-        print("If you have not yet uploaded a file from this directory, you will be prompted to specify which google account you would like to use. This will then populate a storage.json file")
-        print("The file, video_title, video_description, and categoryId arguments of the upload fucntion should all be strings. 'Tags' should be a list of tags for the video.")
-        print("For more help with the categoryId, try setup_help.categoryId()")
-    def categoryId(self):
-        print("Category Ids are numbers given as strings which classify the type of video.")
-        print("They are region specific and therefore cannot be simply listed here")
-        print("In order to obtain a list of category Ids for your account, you need to first create an API browser key for your google project")
-        print("With this browser key, navigate to https://www.googleapis.com/youtube/v3/videoCategories?part=snippet&regionCode={two-character-region}&key={YOUR_API_KEY} ")
-        
+#==============================================================================
+# class setup_help(object):
+#     def __init__(self):
+#         print("helping!")
+#         print("For more help, try setup_help.google_project() setup_help.oauth(), setup_help.upload(), setup_help.categoryId()")
+#     def google_project(self):
+#         print("In order to use this module you must register a project with google as it uses their API.")
+#         print("To do so, travel to https://console.developers.google.com")
+#         print("From there, click on enable and manage API's and create a project. Then navigate to the API page.")
+#         print("At the API page, enable all of the YoutTube API's. Then navigate to the credentials page.")
+#         print("Create new OAuth client ID credentials. To do this you must follow a link to configure a consent screen, which is up to your discretion on what needs to be there.")        
+#         print("Ensure the application type selected for your project is 'other'")
+#         print("Then download the json file containing these credentials to the directory in which you will be running this module. Name this file client_secret.json")
+#         print("To determine category Ids, which are region specific, you must create an API browser key. More details on this can be found in setup_help.categoryId()")
+#     def oauth(self):
+#         print("You will need to place your client_secret.json in the same directory that you are attempting to upload from")
+#         print("This can be downloaded from your project in the google developer console")
+#         print("More information can be found in setup_help.google_project()")
+#     def upload(self):
+#         print("The upload function is the main reason for this package.")
+#         print("To use it, you must have a registered google developers project and a populated client_secret.json in the same folder as this file.")
+#         print("If you have not yet uploaded a file from this directory, you will be prompted to specify which google account you would like to use. This will then populate a storage.json file")
+#         print("The file, video_title, video_description, and categoryId arguments of the upload fucntion should all be strings. 'Tags' should be a list of tags for the video.")
+#         print("For more help with the categoryId, try setup_help.categoryId()")
+#     def categoryId(self):
+#         print("Category Ids are numbers given as strings which classify the type of video.")
+#         print("They are region specific and therefore cannot be simply listed here")
+#         print("In order to obtain a list of category Ids for your account, you need to first create an API browser key for your google project")
+#         print("With this browser key, navigate to https://www.googleapis.com/youtube/v3/videoCategories?part=snippet&regionCode={two-character-region}&key={YOUR_API_KEY} ")
+#         
+#==============================================================================
