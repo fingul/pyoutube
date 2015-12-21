@@ -5,7 +5,10 @@ Created on Wed Dec 16 22:47:41 2015
 @author: lpbrown999 / /u/oiturtlez
 """
 
-import http.client as httplib
+try:
+    import http.client as httplib
+except ImportError:
+    import httplib
 import os
 import httplib2
 import random
@@ -21,7 +24,8 @@ from oauth2client.tools import run_flow, argparser
 YOUTUBE_API_SERVICE_NAME = 'youtube'
 YOUTUBE_API_VERSION = 'v3'
 YOUTUBE_UPLOAD_SCOPE = 'https://www.googleapis.com/auth/youtube.upload'
-CLIENT_SECRETS_FILE = 'client_secret.json'
+CLIENT_SECRETS_FILE = '~/client_secret.json'
+CLIENT_STORAGE_FILE = '~/youtube_storage.json'
 
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
@@ -32,7 +36,7 @@ RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError, httplib.NotConnected,
 
 httplib2.RETRIES = 1
 MAX_RETRIES = 10
-MISSING_CLIENT_SECRETS_MESSAGE = """
+MISSING_CLIENT_SECRETS_MESSAGE_TEMPLATE = """
 WARNING: Please configure OAuth 2.0
 
 To make this sample run you will need to populate the client_secrets.json file
@@ -45,16 +49,23 @@ https://console.developers.google.com/
 
 For more information about the client_secrets.json file format, please visit:
 https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
-""".format(os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                   CLIENT_SECRETS_FILE)))
+"""
 
 
-def get_authenticated_service():
-    flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE, scope=YOUTUBE_UPLOAD_SCOPE, message=MISSING_CLIENT_SECRETS_MESSAGE)
-    storage = Storage("storage.json")
+def get_authenticated_service(allow_interactive):
+
+
+    client_secrets_file = os.path.expanduser(CLIENT_SECRETS_FILE)
+    client_storage_file = os.path.expanduser(CLIENT_STORAGE_FILE)
+
+
+    flow = flow_from_clientsecrets(client_secrets_file, scope=YOUTUBE_UPLOAD_SCOPE, message=MISSING_CLIENT_SECRETS_MESSAGE_TEMPLATE.format(client_secrets_file))
+    storage = Storage(client_storage_file)
     credentials = storage.get()
     args = argparser.parse_args()
     if credentials is None or credentials.invalid:
+        if not allow_interactive:
+            raise Exception("Auth Error Occured. you need client_storage_file={}".format(client_storage_file))
         credentials = run_flow(flow, storage, args)
 
     return(build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, http=credentials.authorize(httplib2.Http())))
@@ -118,6 +129,7 @@ def upload(file, **kwargs):
     tags_list = []
     categoryId = "20"
     privacy_status = 'public'
+    allow_interactive = False
     
     """Check if the arguments are passed to the function, and if they are then assign them."""
     
@@ -132,14 +144,17 @@ def upload(file, **kwargs):
     if 'privacy_status' in kwargs:
         if kwargs['privacy_status'] in VALID_PRIVACY_STATUSES:
             privacy_status = kwargs['privacy_status']
-    youtube = get_authenticated_service()
+    if 'allow_interactive' in kwargs:
+        allow_interactive = bool(kwargs['allow_interactive'])
+
+    youtube = get_authenticated_service(allow_interactive)
     
-    try:  
-        response = initialize_upload(youtube, file, video_title, video_description, tags_list, categoryId, privacy_status)
-        print(response['id'])
-        return(response)
-    except HttpError as e:
-        print("An HTTP error occured {}".format(e))
+    # try:
+    response = initialize_upload(youtube, file, video_title, video_description, tags_list, categoryId, privacy_status)
+    #print(response['id'])
+    return(response)
+    # except HttpError as e:
+    #     print("An HTTP error occured {}".format(e))
         
 #==============================================================================
 # class setup_help(object):

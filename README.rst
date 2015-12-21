@@ -1,8 +1,8 @@
-pyoutube
+borrow from great pyoutube
 --------
 Requirements:
 
-* Python 3.3 or higher
+* Python 2.7 or higher
 
 * Install the Google API's Client Library for python (https://developers.google.com/api-client-library/python/start/installation)
 
@@ -12,12 +12,12 @@ Requirements:
 
 To install::
 
->>> pip install pyoutube
+>>> pip install myyoutube
 
 
 Sample usage::
 
->>>from pyoutube import uploader
+>>>from myyoutube import uploader
 >>>uploader.upload("File.mp4", title="Video Title", description="Video Description", tags=["video", "tags"], categoryId="20",privacy_status="Public")
 
 Returns a dictionary response containing information about the uploaded video.

@@ -3,8 +3,8 @@ from setuptools import setup
 with open('README.rst') as f:
     long_description = f.read()
 
-setup(name='pyoutube',
-      version='0.3',
+setup(name='myyoutube',
+      version='0.1',
       description='Upload videos to youtube using OAuth2.0 and the youtube API',
       long_description=long_description,
       classifieres=['Development Status :: 3 - Alpha',
@@ -12,10 +12,10 @@ setup(name='pyoutube',
                     'Programming Language :: Python :: 3.4'],
       license='MIT',
       keywords='youtube upload uploader', 
-	  url='https://github.com/lpbrown999/pyoutube',
+	  url='https://github.com/fingul/myyoutube',
       author='lpbrown999',
-      author_email='lpbrown999@gmail.com',
-      packages=['pyoutube'],
+      author_email='fingul@gmail.com',
+      packages=['myyoutube'],
       install_requires = ['google-api-python-client'],
 	  include_package_data=True,
       zip_safe=False)
